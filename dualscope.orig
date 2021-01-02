@@ -139,28 +139,28 @@ freezeInfo = 'Freeze: Press mouse button and drag'
 cursorInfo = 'Cursor Pos: Press mouse button in plot region'
 
 try:
-	import ethc
-	print "(II) NATIVE MODULE ethc FOUND"
-	ETHC_MODULE = True
+    import ethc
+    print ("(II) NATIVE MODULE ethc FOUND")
+    ETHC_MODULE = True
 except ImportError:
-	print "(WW) NATIVE MODULE ethc NOT FOUND - FALL BACK TO PIPING ./receive data output"
-	print "(WW) if ethc.py is in the running directory, you may start the scope with:"
-	print "(WW) LD_LIBRARY_PATH=$LD_LIBRARY_PATH:. ./dualscope.py"
-	print "(WW) Falling back to shell-piping the output of 'receive'"
-	ETHC_MODULE = False
+    print ("(WW) NATIVE MODULE ethc NOT FOUND - FALL BACK TO PIPING ./receive data output")
+    print ("(WW) if ethc.py is in the running directory, you may start the scope with:")
+    print ("(WW) LD_LIBRARY_PATH=$LD_LIBRARY_PATH:. ./dualscope.py")
+    print ("(WW) Falling back to shell-piping the output of 'receive'")
+    ETHC_MODULE = False
 
 try:
-	import spectrum
-	print "(II) spectrum MODULE FOUND"
-	SPECTRUM_MODULE = True
+    import spectrum
+    print( "(II) spectrum MODULE FOUND")
+    SPECTRUM_MODULE = True
 except ImportError:
-	print "(WW) PSD: spectrum MODULE NOT FOUND"
-	SPECTRUM_MODULE = False
+    print ("(WW) PSD: spectrum MODULE NOT FOUND")
+    SPECTRUM_MODULE = False
 if USE_NUMPY_FFT:
-	print "(WW) SPECTRUM MODULE DISABLED in source"
-	SPECTRUM_MODULE = False
+    print('(WW) SPECTRUM MODULE DISABLED in source')
+    SPECTRUM_MODULE = False
 if not SPECTRUM_MODULE:
-	print "(WW) PSD: using FFTs through NUMPY.fftpack"
+    print("(WW) PSD: using FFTs through NUMPY.fftpack")
 
 # utility classes
 class LogKnob(Qwt.QwtKnob):
@@ -257,7 +257,7 @@ class Scope(Qwt.QwtPlot):
 
         # default settings
         self.triggerval=0.10
-	self.triggerCH=None
+        self.triggerCH=None
         self.maxamp=100.0
         self.maxamp2=100.0
         self.freeze=0
@@ -267,7 +267,7 @@ class Scope(Qwt.QwtPlot):
         self.datastream = None
         self.offset1=0.0
         self.offset2=0.0
-	self.maxtime = 0.1
+        self.maxtime = 0.1
 
         # set data 
         # NumPy: f, g, a and p are arrays!
@@ -303,7 +303,7 @@ class Scope(Qwt.QwtPlot):
         self.triggerval=val
 
     def setTriggerCH(self, val):
-	self.triggerCH = val
+        self.triggerCH = val
 
     # plot scope traces
     def setDisplay(self):
@@ -342,81 +342,81 @@ class Scope(Qwt.QwtPlot):
 
     # timer callback that does the work
     def timerEvent(self,e):   # Scope
-	global fftbuffersize
+        global fftbuffersize
         if self.datastream == None: return
         if self.freeze==1: return
-	#print "Reading %d" % (CHUNK*8, )
-	print self.maxtime
-	points = ceil(self.maxtime*RATE)
-	if self.triggerCH or self.autocorrelation:
-		# we read twice as much data to be sure to be able to display data for all time points.
-		# independently of trigger point location.
-		nchunks = 2*ceil(points/CHUNK)
-	else:
-		nchunks = ceil(points/CHUNK)
-	fftbuffersize = nchunks*CHUNK + (4-(nchunks*CHUNK%4))%4
-	if SELECTEDCH==BOTH12 or SELECTEDCH==CH1:
-		channel = 1
-		print "Reading %d bytes (%d frames, %d chunks)" % (8*nchunks*CHUNK, CHUNK*nchunks, nchunks)
-        	X = self.datastream.read(channel, nchunks, verbose)
-		if X is None or not len(X): return
-		if len(X) == 0: return
-		#P=array(X, dtype=int32)#/32768.0
-		#val=self.triggerval*self.maxamp
-		i=0
-		data_CH1=X
-	else:
-		data_CH1=zeros((points,))
-	if SELECTEDCH==BOTH12 or SELECTEDCH==CH2:
-		channel = 2
-		print "Reading %d bytes (%d frames, %d chunks)" % (8*nchunks*CHUNK, CHUNK*nchunks, nchunks)
-        	X = self.datastream.read(channel, nchunks, verbose)
-		if X is None or not len(X): return
-		P=array(X, dtype=int32)#/32768.0
-		#val=self.triggerval*self.maxamp
-		data_CH2=X
-	else:
-		data_CH2=zeros((points,))
+        #print "Reading %d" % (CHUNK*8, )
+        print (self.maxtime)
+        points = ceil(self.maxtime*RATE)
+        if self.triggerCH or self.autocorrelation:
+            # we read twice as much data to be sure to be able to display data for all time points.
+            # independently of trigger point location.
+            nchunks = 2*ceil(points/CHUNK)
+        else:
+            nchunks = ceil(points/CHUNK)
+        fftbuffersize = nchunks*CHUNK + (4-(nchunks*CHUNK%4))%4
+        if SELECTEDCH==BOTH12 or SELECTEDCH==CH1:
+            channel = 1
+            print ("Reading %d bytes (%d frames, %d chunks)" % (8*nchunks*CHUNK, CHUNK*nchunks, nchunks))
+            X = self.datastream.read(channel, nchunks, verbose)
+            if X is None or not len(X): return
+            if len(X) == 0: return
+            #P=array(X, dtype=int32)#/32768.0
+            #val=self.triggerval*self.maxamp
+            i=0
+            data_CH1=X
+        else:
+            data_CH1=zeros((points,))
+        if SELECTEDCH==BOTH12 or SELECTEDCH==CH2:
+            channel = 2
+            print ("Reading %d bytes (%d frames, %d chunks)" % (8*nchunks*CHUNK, CHUNK*nchunks, nchunks))
+            X = self.datastream.read(channel, nchunks, verbose)
+            if X is None or not len(X): return
+            P=array(X, dtype=int32)#/32768.0
+            #val=self.triggerval*self.maxamp
+            data_CH2=X
+        else:
+            data_CH2=zeros((points,))
 
-	if self.triggerCH == 1 and (SELECTEDCH==BOTH12 or SELECTEDCH==CH1):
-		print "Waiting for CH1 trigger..."
-		zero_crossings = where(diff(sign(data_CH1[points/2:-points/2]-self.triggerval*self.maxamp)) > 0)[0]
-		if not len(zero_crossings): return
-		print "Triggering on sample", zero_crossings[0]
-		imin = zero_crossings[0]
-		imax = zero_crossings[0]+points
-		data_CH1 = data_CH1[imin:imax]
-	elif self.triggerCH == 2 and (SELECTEDCH==BOTH12 or SELECTEDCH==CH2):
-		print "Waiting for CH2 trigger..."
-		zero_crossings = where(diff(sign(data_CH2[points/2:-points/2]-self.triggerval*self.maxamp2)) > 0)[0]
-		if not len(zero_crossings): return
-		print "Triggering on sample", zero_crossings[0]
-		imin = zero_crossings[0]
-		imax = zero_crossings[0]+points
-		data_CH2 = data_CH2[imin:imax]
+        if self.triggerCH == 1 and (SELECTEDCH==BOTH12 or SELECTEDCH==CH1):
+            print ("Waiting for CH1 trigger...")
+            zero_crossings = where(diff(sign(data_CH1[points/2:-points/2]-self.triggerval*self.maxamp)) > 0)[0]
+            if not len(zero_crossings): return
+            print ("Triggering on sample", zero_crossings[0])
+            imin = zero_crossings[0]
+            imax = zero_crossings[0]+points
+            data_CH1 = data_CH1[imin:imax]
+        elif self.triggerCH == 2 and (SELECTEDCH==BOTH12 or SELECTEDCH==CH2):
+            print("Waiting for CH2 trigger...")
+        zero_crossings = where(diff(sign(data_CH2[points/2:-points/2]-self.triggerval*self.maxamp2)) > 0)[0]
+        if not len(zero_crossings): return
+        print ("Triggering on sample", zero_crossings[0])
+        imin = zero_crossings[0]
+        imax = zero_crossings[0]+points
+        data_CH2 = data_CH2[imin:imax]
 
         if self.autocorrelation:
             if SELECTEDCH==BOTH12 or SELECTEDCH==CH1:
-		channel = 1
-		print "Reading %d bytes (%d frames, %d chunks)" % (8*nchunks*CHUNK, CHUNK*nchunks, nchunks)
-        	X = self.datastream.read(channel, nchunks, verbose)
-		if X is None or not len(X): return
-		if len(X) == 0: return
+                channel = 1
+                print ("Reading %d bytes (%d frames, %d chunks)" % (8*nchunks*CHUNK, CHUNK*nchunks, nchunks))
+                X = self.datastream.read(channel, nchunks, verbose)
+                if X is None or not len(X): return
+                if len(X) == 0: return
                 data_CH1 = array(correlate(X[:2*points], X[:points], mode='full'), dtype='float_')[points:]
-		data_CH1 = data_CH1/data_CH1[0]
+                data_CH1 = data_CH1/data_CH1[0]
             else:
-		data_CH1=zeros((points,))
+                data_CH1=zeros((points,))
             if SELECTEDCH==BOTH12 or SELECTEDCH==CH2:
-		channel = 2
-		print "Reading %d bytes (%d frames, %d chunks)" % (8*nchunks*CHUNK, CHUNK*nchunks, nchunks)
-        	X = self.datastream.read(channel, nchunks, verbose)
-		if X is None or not len(X): return
-		if len(X) == 0: return
+                channel = 2
+                print ("Reading %d bytes (%d frames, %d chunks)" % (8*nchunks*CHUNK, CHUNK*nchunks, nchunks))
+                X = self.datastream.read(channel, nchunks, verbose)
+                if X is None or not len(X): return
+                if len(X) == 0: return
                 data_CH2 = array(correlate(X[:points], X, mode='full'), dtype='float_')[points:]
-		data_CH2 = data_CH2/data_CH2[0]
+                data_CH2 = data_CH2/data_CH2[0]
             else:
-		data_CH2=zeros((points,))
-		
+                data_CH2=zeros((points,))
+        
         if self.average == 0:
             self.a1=data_CH1
             self.a2=data_CH2
@@ -472,11 +472,11 @@ class ScopeFrame(Qt.QFrame):
         vknobpos=scopeheight+30
         self.setFixedSize(scopewidth+150, scopeheight+150)
         self.freezeState = 0
-	self.triggerComboBox = Qt.QComboBox(self)
-	self.triggerComboBox.setGeometry(hknobpos+10, 50, 100, 40)#"Channel: ")
-	self.triggerComboBox.addItem("Trigger off")
-	self.triggerComboBox.addItem("CH1")
-	self.triggerComboBox.addItem("CH2")
+        self.triggerComboBox = Qt.QComboBox(self)
+        self.triggerComboBox.setGeometry(hknobpos+10, 50, 100, 40)#"Channel: ")
+        self.triggerComboBox.addItem("Trigger off")
+        self.triggerComboBox.addItem("CH1")
+        self.triggerComboBox.addItem("CH2")
         self.triggerComboBox.setCurrentIndex(0)
         self.knbLevel = LblKnob(self,hknobpos,100,"Trigger level (%FS)")
         self.knbTime = LblKnob(self,hknobpos, 240,"Time", 1) 
@@ -530,7 +530,7 @@ class ScopeFrame(Qt.QFrame):
                      self.plot.setOffset1)
         self.connect(self.knbOffset2.knob, Qt.SIGNAL("valueChanged(double)"),
                      self.plot.setOffset2)
-	self.connect(self.triggerComboBox, Qt.SIGNAL('currentIndexChanged(int)'), self.setTriggerCH)
+        self.connect(self.triggerComboBox, Qt.SIGNAL('currentIndexChanged(int)'), self.setTriggerCH)
         self.knbLevel.setValue(0.1)
         self.plot.setAxisScale( Qwt.QwtPlot.xBottom, 0.0, 10.0*inittime)
         self.plot.setAxisScale( Qwt.QwtPlot.yLeft, -initamp, initamp)
@@ -554,7 +554,7 @@ class ScopeFrame(Qt.QFrame):
     def setTimebase(self, val):
         dt=self._calcKnobVal(val)
         self.plot.setAxisScale( Qwt.QwtPlot.xBottom, 0.0, 10.0*dt)
-	self.plot.setMaxTime(dt*10.0)
+        self.plot.setMaxTime(dt*10.0)
         self.plot.replot()
 
     def setAmplitude(self, val):
@@ -574,10 +574,10 @@ class ScopeFrame(Qt.QFrame):
         self.plot.setDisplay()
 
     def setTriggerCH(self, val):
-	if val == 0:
-		val = None
-	self.plot.setTriggerCH(val)
-	self.plot.setDisplay()
+        if val == 0:
+            val = None
+        self.plot.setTriggerCH(val)
+        self.plot.setDisplay()
 
 #--------------------------------------------------------------------
 
@@ -689,49 +689,49 @@ class FScope(Qwt.QwtPlot):
         self.datastream = datastream
 
     def timerEvent(self,e):     # FFT
-	global fftbuffersize
+        global fftbuffersize
         if self.datastream == None: return
         if self.freeze==1: return
-	nchunks = ceil(fftbuffersize/CHUNK)
-	if SELECTEDCH==BOTH12 or SELECTEDCH==CH1:
-		channel = 1
-        	X=self.datastream.read(channel, nchunks, verbose)
-		if X is None or not len(X): return
-		data_CH1=X[:fftbuffersize]
-	else:
-		data_CH1=ones((fftbuffersize,))
-	if SELECTEDCH==BOTH12 or SELECTEDCH==CH2:
-		channel = 2
-        	X=self.datastream.read(channel, nchunks, verbose)
-		if X is None or not len(X): return
-		data_CH2=X[:fftbuffersize]
-	else:
-		data_CH2=ones((fftbuffersize,))
+        nchunks = ceil(fftbuffersize/CHUNK)
+    if SELECTEDCH==BOTH12 or SELECTEDCH==CH1:
+        channel = 1
+        X=self.datastream.read(channel, nchunks, verbose)
+        #if X is None or not len(X): return
+        data_CH1=X[:fftbuffersize]
+    else:
+        data_CH1=ones((fftbuffersize,))
+    if SELECTEDCH==BOTH12 or SELECTEDCH==CH2:
+        channel = 2
+        X=self.datastream.read(channel, nchunks, verbose)
+        #if X is None or not len(X): return
+        data_CH2=X[:fftbuffersize]
+    else:
+        data_CH2=ones((fftbuffersize,))
         self.df=1.0/(fftbuffersize*self.dt)
         self.setAxisTitle(Qwt.QwtPlot.xBottom, 'Frequency [Hz] - Bin width %g Hz' % (self.df,))
         self.f = arange(0.0, samplerate, self.df)
         if not SPECTRUM_MODULE:
-        	lenX = fftbuffersize
-        	window=blackman(lenX)
-        	sumw=sum(window*window)
-        	A=FFT.fft(data_CH1*window) #lenX
-        	B=(A*conjugate(A)).real
-        	A=FFT.fft(data_CH2*window) #lenX
-        	B2=(A*conjugate(A)).real
-        	sumw*=2.0   # sym about Nyquist (*4); use rms (/2)
-        	sumw/=self.dt  # sample rate
-        	B=B/sumw
-        	B2=B2/sumw
+            lenX = fftbuffersize
+            window=blackman(lenX)
+            sumw=sum(window*window)
+            A=FFT.fft(data_CH1*window) #lenX
+            B=(A*conjugate(A)).real
+            A=FFT.fft(data_CH2*window) #lenX
+            B2=(A*conjugate(A)).real
+            sumw*=2.0   # sym about Nyquist (*4); use rms (/2)
+            sumw/=self.dt  # sample rate
+            B=B/sumw
+            B2=B2/sumw
         else:
-		print "FFT buffer size: %d points" % (fftbuffersize,)
-        	B = spectrum.Periodogram(array(data_CH1, dtype=float64), samplerate)
-		B.sides = 'onesided'
-		B.run()
-		B = B.get_converted_psd('onesided')
-        	B2 = spectrum.Periodogram(array(data_CH2, dtype=float64), samplerate)
-		B2.sides = 'onesided'
-		B2.run()
-		B2 = B2.get_converted_psd('onesided')
+            print ("FFT buffer size: %d points" % (fftbuffersize,))
+            B = spectrum.Periodogram(array(data_CH1, dtype=float64), samplerate)
+            B.sides = 'onesided'
+            B.run()
+            B = B.get_converted_psd('onesided')
+            B2 = spectrum.Periodogram(array(data_CH2, dtype=float64), samplerate)
+            B2.sides = 'onesided'
+            B2.run()
+            B2 = B2.get_converted_psd('onesided')
         if self.logy:
             P1=log10(B)*10.0#+20.0#60.0
             P2=log10(B2)*10.0#+20.0#60.0
@@ -1099,7 +1099,7 @@ class FScopeDemo(Qt.QMainWindow):
                       (name,frequency, amplitude,ampa,ampb))
         
     def appended(self, e):
-        print 's'
+        print ('s')
         # Python semantics: self.pos = e.pos() does not work; force a copy
         self.xpos = e.x()
         self.ypos = e.y()
@@ -1125,14 +1125,14 @@ def load_probe():
     return probe_name, probe_module
         
 if __name__ == '__main__':
-	global verbose 
-	verbose = False
-	stream = eth.ethernet_interface()
+    global verbose 
+    verbose = False
+    stream = eth.ethernet_interface()
 
-	app = Qt.QApplication(sys.argv)
-	demo=FScopeDemo()
-	demo.scope.plot.setDatastream(stream)
-	demo.show()
+    app = Qt.QApplication(sys.argv)
+    demo=FScopeDemo()
+    demo.scope.plot.setDatastream(stream)
+    demo.show()
 
-	app.exec_()
+    app.exec_()
 
